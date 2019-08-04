@@ -1,0 +1,29 @@
+[package]
+name = "symart_base"
+version = "0.1.0"
+authors = ["Daniel R Gulotta <dgulotta@alum.mit.edu>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["threads"]
+threads = ["rayon"]
+
+[dependencies]
+alga = "0.7"
+nalgebra = "0.16"
+ndarray = { version = "0.12", default-features = false }
+num-traits = "0.2"
+num-complex = "0.2"
+rand = { version = "0.7", features = ["small_rng"] }
+rand_distr = "0.2"
+rustfft = "3"
+image = { version = "0.20", default-features = false, features = ["png_codec"] }
+ordered-float = "1.0"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = { version = "1.0", features = ["preserve_order"] }
+strum = "0.15"
+strum_macros = "0.15"
+rayon = { version = "1.1", optional = true }
+transpose = "0.2"

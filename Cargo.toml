@@ -1,0 +1,6 @@
+[workspace]
+members = [
+	"symart_base",
+	"symart_designs",
+	"symart_wasm"
+]
