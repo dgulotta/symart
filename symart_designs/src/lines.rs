@@ -1,5 +1,6 @@
 use alga::general::AdditiveGroup;
 use na::{Point2, Scalar, Vector2};
+use num_traits::identities::zero;
 use image::RgbImage;
 use ordered_float::NotNan;
 use rand::distributions::uniform::{SampleUniform, Uniform};
@@ -153,7 +154,7 @@ impl PartialOrd for StarPathNode {
 
 impl Ord for StarPathNode {
     fn cmp(&self, other: &StarPathNode) -> Ordering {
-        self.dist.cmp(&other.dist)
+        other.dist.cmp(&self.dist)
     }
 }
 
@@ -505,7 +506,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
         let mut queue = BinaryHeap::new();
         for _ in 0..(Poisson::new(5.).unwrap().sample(self.rng)) {
             queue.push(StarPathNode {
-                dist: unsafe { NotNan::unchecked_new(0.) },
+                dist: zero(),
                 pos: self.random_point(),
             });
         }
@@ -536,10 +537,10 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
 
 #[derive(Deserialize)]
 pub struct Lines {
-    symmetry: SymmetryChoice,
-    size: u32,
-    colors: usize,
-    designs: Vec<Design>,
+    pub symmetry: SymmetryChoice,
+    pub size: u32,
+    pub colors: usize,
+    pub designs: Vec<Design>,
 }
 
 pub fn lines_designs() -> serde_json::Value {

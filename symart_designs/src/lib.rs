@@ -1,6 +1,7 @@
 extern crate alga;
 extern crate image;
 extern crate nalgebra as na;
+extern crate num_traits;
 extern crate ordered_float;
 extern crate rand;
 extern crate rand_distr;
