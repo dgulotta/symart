@@ -19,7 +19,7 @@ impl<T> SymmetricCanvas<T> {
         self.canvas.height()
     }
 
-    fn from_wrap_canvas(canvas: WrapCanvas<T>, group: SymmetryGroup) -> Self {
+    pub fn from_wrap_canvas(canvas: WrapCanvas<T>, group: SymmetryGroup) -> Self {
         let hsz = (canvas.height() / 2) as i32;
         Self {
             canvas,

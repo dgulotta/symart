@@ -25,10 +25,31 @@ impl Modulus {
     }
 }
 
+pub struct WrapDimension {
+    vert: Modulus,
+    horiz: Modulus
+}
+
+impl WrapDimension {
+    pub fn new(vert: i32, horiz: i32) -> Self {
+        WrapDimension { vert: Modulus::new(vert), horiz: Modulus::new(horiz) }
+    }
+
+    pub fn new_from_shape(sh: &[usize]) -> Self {
+        WrapDimension::new(sh[0] as i32, sh[1] as i32)
+    }
+
+    pub fn compute_index(&self, coord: &Coord) -> (usize, usize) {
+        (
+            self.vert.apply(coord.y) as usize,
+            self.horiz.apply(coord.x) as usize,
+        )
+    }
+}
+
 pub struct WrapCanvas<T> {
     array: Array2<T>,
-    vert: Modulus,
-    horiz: Modulus,
+    dims: WrapDimension
 }
 
 fn shape(height: u32, width: u32) -> (usize, usize) {
@@ -36,12 +57,7 @@ fn shape(height: u32, width: u32) -> (usize, usize) {
 }
 
 impl<T> WrapCanvas<T> {
-    fn compute_index(&self, coord: &Coord) -> (usize, usize) {
-        (
-            self.vert.apply(coord.y) as usize,
-            self.horiz.apply(coord.x) as usize,
-        )
-    }
+
 
     pub fn height(&self) -> usize {
         self.array.shape()[0]
@@ -81,8 +97,7 @@ impl<T> From<Array2<T>> for WrapCanvas<T> {
         let w = arr.shape()[1] as i32;
         Self {
             array: arr,
-            vert: Modulus::new(h),
-            horiz: Modulus::new(w),
+            dims: WrapDimension::new(h,w)
         }
     }
 }
@@ -91,13 +106,13 @@ impl<T> Index<Coord> for WrapCanvas<T> {
     type Output = T;
 
     fn index(&self, coord: Coord) -> &T {
-        &self.array[self.compute_index(&coord)]
+        &self.array[self.dims.compute_index(&coord)]
     }
 }
 
 impl<T> IndexMut<Coord> for WrapCanvas<T> {
     fn index_mut(&mut self, coord: Coord) -> &mut T {
-        let index = self.compute_index(&coord);
+        let index = self.dims.compute_index(&coord);
         &mut self.array[index]
     }
 }

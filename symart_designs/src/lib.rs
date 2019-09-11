@@ -14,3 +14,4 @@ extern crate strum_macros;
 extern crate symart_base;
 
 pub mod lines;
+pub mod squiggles;
