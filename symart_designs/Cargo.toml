@@ -10,9 +10,9 @@ default = ["threads"]
 threads = ["symart_base/threads"]
 
 [dependencies]
-alga = "0.7"
+alga = "0.9"
 image = { version = "0.20", default-features = false, features = ["png_codec"] }
-nalgebra = "0.16"
+nalgebra = "0.21"
 ndarray = { version = "0.12", default-features = false }
 num-complex = "0.2"
 num-traits = "0.2"

@@ -63,7 +63,7 @@ struct EndpointDist {
 
 impl<T> Distribution<(Point2<T>, Point2<T>)> for EndpointDist
 where
-    T: SampleUniform + Scalar + From<i32> + AdditiveGroup,
+    T: SampleUniform + Scalar + From<i32> + AdditiveGroup + Copy,
 {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> (Point2<T>, Point2<T>) {
         let pt = PointDist { size: self.size }.sample(rng);
@@ -267,7 +267,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
 
     fn random_endpoints<T>(&mut self, wrap: i32) -> (Point2<T>, Point2<T>)
     where
-        T: SampleUniform + Scalar + From<i32> + AdditiveGroup,
+        T: SampleUniform + Scalar + From<i32> + AdditiveGroup + Copy,
     {
         EndpointDist {
             size: self.size() as i32,

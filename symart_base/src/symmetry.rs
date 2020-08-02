@@ -58,7 +58,7 @@ pub struct Transformation<T: Scalar> {
     offset: Vector2<T>,
 }
 
-impl<T: Scalar + Ring> Transformation<T> {
+impl<T: Scalar + Ring + Copy> Transformation<T> {
     pub fn apply(&self, pt: &Point2<T>) -> Point2<T> {
         Point2::from(self.matrix * pt.coords + self.offset)
     }
@@ -163,7 +163,7 @@ impl<T: Scalar + Ring> Transformation<T> {
 
 type Tr<T> = Transformation<T>;
 
-pub fn transformations<T: Scalar + Ring>(sg: SymmetryGroup, hsz: T) -> Vec<Transformation<T>> {
+pub fn transformations<T: Scalar + Ring + Copy>(sg: SymmetryGroup, hsz: T) -> Vec<Transformation<T>> {
     use self::SymmetryGroup::*;
     match sg {
         CM => vec![Tr::id(), Tr::flip_d1()],
@@ -254,11 +254,11 @@ pub enum GridNorm {
     Hexagonal,
 }
 
-pub fn norm_orthogonal<T: Scalar + Ring>(v: &Vector2<T>) -> T {
+pub fn norm_orthogonal<T: Scalar + Ring + Copy>(v: &Vector2<T>) -> T {
     v.x * v.x + v.y * v.y
 }
 
-pub fn norm_hexagonal<T: Scalar + Ring>(v: &Vector2<T>) -> T {
+pub fn norm_hexagonal<T: Scalar + Ring + Copy>(v: &Vector2<T>) -> T {
     v.x * v.x + v.x * v.y + v.y * v.y
 }
 
@@ -271,7 +271,7 @@ impl GridNorm {
         }
     }
 
-    pub fn norm<T: Scalar + Ring>(self, v: &Vector2<T>) -> T {
+    pub fn norm<T: Scalar + Ring + Copy>(self, v: &Vector2<T>) -> T {
         match self {
             GridNorm::Square => norm_orthogonal(v),
             GridNorm::Hexagonal => norm_hexagonal(v),
