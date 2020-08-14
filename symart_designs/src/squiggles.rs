@@ -125,6 +125,8 @@ pub struct Squiggles {
 }
 
 impl symart_base::Design for Squiggles {
+    fn name() -> &'static str { "Squiggles" }
+    
     fn schema() -> serde_json::Value {
         serde_json::json!({
             "title": "Parameters",
@@ -160,7 +162,7 @@ impl symart_base::Design for Squiggles {
         })
     }
 
-    fn draw(&self) -> DrawResponse {
+    fn draw(&self) -> Result<DrawResponse, Box<dyn std::error::Error>> {
         let sym: SymmetryGroup = self.symmetry.into();
         let mut im = RgbImage::new(self.size, self.size);
         let param = SquigglesParam {
@@ -174,6 +176,6 @@ impl symart_base::Design for Squiggles {
             let col = symart_base::rng::sample(symart_base::random::Color);
             symart_base::layer::merge_one(&mut im, layer.as_ref(), image::Rgb(col));
         });
-        DrawResponse { im, sym }
+        Ok(DrawResponse { im, sym: sym.into() })
     }
 }

@@ -11,6 +11,8 @@ use stdweb::web::event::{ClickEvent, IEvent};
 use stdweb::web::html_element::CanvasElement;
 use symart_base::{Design, DrawResponse};
 use symart_designs::lines::Lines;
+use symart_designs::squiggles::Squiggles;
+use symart_designs::quasitrap::Quasitrap;
 use symart_wasm::{call_when_loaded, make_image_data};
 
 fn draw(res: &DrawResponse, celt: &CanvasElement) {
@@ -43,14 +45,28 @@ fn setup<D: Design>(elt: &Element) {
             return JSON.stringify(@{&editor}.getValue());
         };
         let req = serde_json::from_str(json.as_str().unwrap()).unwrap();
-        let res = D::draw(&req);
+        let res = D::draw(&req).unwrap();
         draw(&res, &canvas);
     };
     draw_button.add_event_listener(listener);
 }
 
+fn add<D: Design>(parent: &Element, menu: &Element) {
+    let div = document().create_element("div").unwrap();
+    parent.append_child(&div);
+    setup::<D>(&div);
+}
+
+fn do_setup() {
+    let form = document().get_element_by_id("form").unwrap();
+    let par = document().create_element("p").unwrap();
+    add::<Lines>(&form, &par);
+    add::<Squiggles>(&form, &par);
+    add::<Quasitrap>(&form, &par);
+}
+
 fn main() {
     stdweb::initialize();
-    call_when_loaded(|| setup::<Lines>(&document().get_element_by_id("form").unwrap()));
+    call_when_loaded(do_setup);
     stdweb::event_loop();
 }

@@ -28,6 +28,26 @@ pub fn size() -> Value {
     })
 }
 
+pub fn width() -> Value {
+    json!({
+        "type": "integer",
+        "title": "Width",
+        "minimum": 1,
+        "maximum": 65536,
+        "default": 1600
+    })
+}
+
+pub fn height() -> Value {
+    json!({
+        "type": "integer",
+        "title": "Height",
+        "minimum": 1,
+        "maximum": 65536,
+        "default": 900
+    })
+}
+
 pub fn num_colors() -> Value {
     json!({
         "type": "integer",

@@ -20,7 +20,7 @@ where
     for (x, y, pix) in img.pixels() {
         let pos = (img.width() as usize) * (y as usize) + (x as usize);
         let rgba = pix.to_rgba();
-        buf[(4*pos)..(4*(pos+1))].copy_from_slice(&rgba.data[..]);
+        buf[(4*pos)..(4*(pos+1))].copy_from_slice(&rgba.0[..]);
     }
     let data = ctx.create_image_data(img.width() as f64, img.height() as f64).unwrap();
     let arr: TypedArray<u8> = buf.deref().into();

@@ -14,17 +14,10 @@ use strum_macros::{Display, EnumCount, EnumIter, EnumString, IntoStaticStr};
 use symart_base::canvas::Coord;
 use symart_base::symmetric_canvas::SymmetricCanvas;
 use symart_base::symmetry::{GridNorm, SymmetryGroup};
+use symart_base::random::NormalScaled;
 use symart_base::{DrawResponse, SymmetryChoice, schema};
 
 struct NormalDist(pub GridNorm);
-struct NormalScaled(f64);
-
-impl Distribution<f64> for NormalScaled {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
-        let n: f64 = StandardNormal.sample(rng);
-        self.0 * n
-    }
-}
 
 impl Distribution<Vector2<f64>> for NormalDist {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Vector2<f64> {
@@ -559,6 +552,8 @@ pub fn lines_designs() -> serde_json::Value {
 }
 
 impl symart_base::Design for Lines {
+    fn name() -> &'static str { "Lines" }
+
     fn schema() -> serde_json::Value {
         serde_json::json!({
             "title": "Parameters",
@@ -573,7 +568,7 @@ impl symart_base::Design for Lines {
         })
     }
 
-    fn draw(&self) -> DrawResponse {
+    fn draw(&self) -> Result<DrawResponse, Box<dyn std::error::Error>> {
         let sym: SymmetryGroup = self.symmetry.into();
         let mut im = RgbImage::new(self.size, self.size);
         symart_base::make_layers(self.colors, || {
@@ -593,6 +588,6 @@ impl symart_base::Design for Lines {
             let col = symart_base::rng::sample(symart_base::random::Color);
             symart_base::layer::merge_one(&mut im, layer.as_ref(), image::Rgb(col));
         });
-        DrawResponse { im, sym }
+        Ok(DrawResponse { im, sym: sym.into() })
     }
 }

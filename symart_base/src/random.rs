@@ -4,6 +4,7 @@ use rand_distr::{Exp1, StandardNormal, Uniform};
 use rand::Rng;
 use strum::{EnumCount, IntoEnumIterator};
 use std::f64::consts::FRAC_PI_2;
+use num_complex::Complex64;
 
 use crate::symmetry::SymmetryGroup;
 
@@ -64,5 +65,40 @@ impl Distribution<f64> for Levy {
         let t = (self.alpha * u).sin() / u.cos().powf(1. / self.alpha);
         let s = (((1. - self.alpha) * u).cos() / v).powf((1. - self.alpha) / self.alpha);
         t * s
+    }
+}
+
+pub struct Fraction {
+    pub denom: usize
+}
+
+impl Distribution<f64> for Fraction {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
+        (Uniform::new(0,self.denom).sample(rng) as f64) / (self.denom as f64)
+    }
+}
+
+pub struct NormalScaled(pub f64);
+
+pub struct ComplexStdNormal;
+
+impl Distribution<f64> for NormalScaled {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
+        let n: f64 = StandardNormal.sample(rng);
+        self.0 * n
+    }
+}
+
+impl Distribution<Complex64> for ComplexStdNormal {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Complex64 {
+        Complex64::new(StandardNormal.sample(rng), StandardNormal.sample(rng))
+    }
+}
+
+pub struct Slice<'a, T: Copy> { pub slice: &'a [T] }
+
+impl<'a, T: Copy> Distribution<T> for Slice<'a, T> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
+        self.slice[Uniform::new(0,self.slice.len()).sample(rng)]
     }
 }

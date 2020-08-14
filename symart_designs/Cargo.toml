@@ -11,7 +11,7 @@ threads = ["symart_base/threads"]
 
 [dependencies]
 alga = "0.9"
-image = { version = "0.20", default-features = false, features = ["png_codec"] }
+image = { version = "0.23", default-features = false, features = ["png"] }
 nalgebra = "0.21"
 ndarray = { version = "0.12", default-features = false }
 num-complex = "0.2"
@@ -26,3 +26,4 @@ serde_json = { version = "1.0", features = ["preserve_order"] }
 strum = "0.15"
 strum_macros = "0.15"
 symart_base = { path = "../symart_base", default-features = false }
+thiserror = "1.0"

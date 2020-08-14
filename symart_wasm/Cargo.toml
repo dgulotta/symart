@@ -6,7 +6,7 @@ edition = "2018"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-image = { version = "0.20", default-features = false, features = ["png_codec"] }
+image = { version = "0.23", default-features = false, features = ["png"] }
 rand = { version = "0.7", features = ["stdweb"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 stdweb = { version = "0.4" }

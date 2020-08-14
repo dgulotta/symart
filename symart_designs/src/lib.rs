@@ -10,8 +10,10 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate strum_macros;
+extern crate thiserror;
 
 extern crate symart_base;
 
 pub mod lines;
 pub mod squiggles;
+pub mod quasitrap;

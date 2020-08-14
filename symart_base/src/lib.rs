@@ -56,13 +56,23 @@ impl From<SymmetryChoice> for SymmetryGroup {
 }
 
 pub trait Design: serde::de::DeserializeOwned {
+    fn name() -> &'static str;
     fn schema() -> serde_json::Value;
-    fn draw(&self) -> DrawResponse;
+    fn draw(&self) -> Result<DrawResponse, Box<dyn std::error::Error>>;
+}
+
+pub enum SymmetryType {
+    Wrapped(SymmetryGroup),
+    None
+}
+
+impl From<SymmetryGroup> for SymmetryType {
+    fn from(g: SymmetryGroup) -> SymmetryType { SymmetryType::Wrapped(g) }
 }
 
 pub struct DrawResponse {
     pub im: RgbImage,
-    pub sym: SymmetryGroup,
+    pub sym: SymmetryType,
 }
 
 #[cfg(feature = "threads")]
