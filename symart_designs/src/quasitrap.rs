@@ -1,5 +1,5 @@
 use nalgebra as na;
-use na::{Vector2, Vector4, Matrix4x2};
+use na::{Vector2, Vector4, Matrix4x2, Vector6, Matrix6};
 use rand::Rng;
 use rand_distr::Uniform;
 use symart_base::{schema, DrawResponse};
@@ -34,6 +34,10 @@ fn flip8_1(v: V4) -> V4 { Vector4::new(v.x, v.w, -v.z, v.y) }
 fn flip8_2(v: V4) -> V4 { Vector4::new(v.x, -v.y, v.z, -v.w) }
 fn flip8_3(v: V4) -> V4 { Vector4::new(v.x, -v.w, -v.z, -v.y) }
 
+fn flip12_1(v: V4) -> V4 { Vector4::new(v.x, v.w-v.y, v.x-v.z, v.w) }
+fn flip12_2(v: V4) -> V4 { Vector4::new(v.x, -v.y, v.z, -v.w) }
+fn flip12_3(v: V4) -> V4 { Vector4::new(v.x, v.y-v.w, v.x-v.z, -v.w) }
+
 fn rot8_1(v: V4) -> V4 { Vector4::new(v.y,v.z,v.w,-v.x) }
 fn rot8_2(v: V4) -> V4 { Vector4::new(v.z,v.w,-v.x,-v.y) }
 fn rot8_3(v: V4) -> V4 { Vector4::new(v.w,-v.x,-v.y,-v.z) }
@@ -60,6 +64,7 @@ static TRANSFORMS_12: [fn(V4) -> V4; 13] = [ zero, ident, invert, rot12_1, rot12
     rot12_3, rot12_4, rot12_5, rot12_6, rot12_7, rot12_8, rot12_9, rot12_10];
 static FLIPS_5: [fn(V4) -> V4; 4] = [ident, flip10_1, flip10_2, flip10_3]; 
 static FLIPS_8: [fn(V4) -> V4; 4] = [ident, flip8_1, flip8_2, flip8_3]; 
+static FLIPS_12: [fn(V4) -> V4; 4] = [ident, flip12_1, flip12_2, flip12_3]; 
 
 trait TrapRunner {
     type Point;
@@ -216,6 +221,57 @@ impl TrapRunner for Trap8Trig {
     fn num_iters(&self) -> usize { 15 }
 }
 
+struct Trap12Trig {
+    a1: fn(V4) -> V4,
+    a3: f64,
+    a4: f64,
+    a5: f64,
+    a6: f64,
+    a7: f64,
+    a8: f64,
+    flip: fn(V4) -> V4,
+    offset: V4
+}
+
+impl TrapRunner for Trap12Trig {
+    type Point = V4;
+    fn new_random<R: Rng + ?Sized>(rng: &mut R) -> Self {
+        Self {
+            a1: Slice { slice: &TRANSFORMS_12 }.sample(rng),
+            a3: NormalScaled(0.5).sample(rng),
+            a4: NormalScaled(0.5).sample(rng),
+            a5: NormalScaled(0.5).sample(rng),
+            a6: NormalScaled(0.5).sample(rng),
+            a7: NormalScaled(0.5).sample(rng),
+            a8: NormalScaled(0.5).sample(rng),
+            flip: Slice { slice: &FLIPS_12 }.sample(rng),
+            offset: Offset.sample(rng)
+        }
+    }
+    fn embed(&self, v: Vector2<f64>) -> V4 {
+        emb_12() * v + self.offset
+    }
+    fn iterate(&self, v: V4) -> V4 {
+        let v6 = Vector6::new(v.x.sin(), v.y.sin(), v.z.sin(), v.w.sin(),
+            (v.z-v.x).sin(), (v.w-v.y).sin());
+        let m = Matrix6::new(
+            self.a3,self.a4,self.a5,self.a6,self.a7,self.a8,
+            -self.a8,self.a3,self.a4,self.a5,self.a6,self.a7,
+            -self.a7,-self.a8,self.a3,self.a4,self.a5,self.a6,
+            -self.a6,-self.a7,-self.a8,self.a3,self.a4,self.a5,
+            -self.a5,-self.a6,-self.a7,-self.a8,self.a3,self.a4,
+            -self.a4,-self.a5,-self.a6,-self.a7,-self.a8,self.a3);
+        let vn = m * v6;
+        let sx = (1. / 3. ) * (vn.x - vn.z + vn.a);
+        let sy = (1. / 3. ) * (vn.y - vn.w + vn.b);
+        let vecn = Vector4::new(vn.x - sx, vn.y - sy, vn.z + sx, vn.w + sy) + (self.a1)(v);
+        (self.flip)(vecn)
+    }
+    fn dist(&self, p: V4) -> f64 { dist_12(p) }
+    fn num_iters(&self) -> usize { 15 }
+}
+
+
 fn emb_5() -> Matrix4x2<f64> {
     Matrix4x2::new(
         0.30901699437494745,0.9510565162951535,
@@ -229,6 +285,13 @@ fn emb_8() -> Matrix4x2<f64> {
        0.70710678118654752440, 0.70710678118654752440,
        0.0, 1.0,
        -0.70710678118654752440, 0.70710678118654752440)
+}
+
+fn emb_12() -> Matrix4x2<f64> {
+    Matrix4x2::new(1.0,0.0,
+        0.8660254037844387,0.5,
+        0.5,0.8660254037844387,
+        0.0,1.0)
 }
 
 fn dist_5(v: V4) -> f64 {
@@ -284,7 +347,7 @@ impl symart_base::Design for Quasitrap {
                 "symmetries": {
                     "type": "integer",
                     "title": "Symmetries",
-                    "enum": [5, 8, 10],
+                    "enum": [5, 8, 10, 12],
                     "default": 5
                 },
                 "quasiperiod": {
@@ -305,6 +368,7 @@ impl symart_base::Design for Quasitrap {
             5 => make_runner::<Trap5Trig>(),
             8 => make_runner::<Trap8Trig>(),
             10 => make_runner::<Trap10Trig>(),
+            12 => make_runner::<Trap12Trig>(),
             _ => return Err(Box::new(QuasitrapError::BadParam))
         };
         let factor = 2. * PI / self.quasiperiod;
