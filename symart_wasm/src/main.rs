@@ -6,7 +6,7 @@ extern crate symart_designs;
 extern crate symart_wasm;
 
 use stdweb::unstable::TryInto;
-use stdweb::web::{document, Element, IEventTarget, INode, INonElementParentNode};
+use stdweb::web::{document, Element, IElement, IEventTarget, INode, INonElementParentNode};
 use stdweb::web::event::{ClickEvent, IEvent};
 use stdweb::web::html_element::CanvasElement;
 use symart_base::{Design, DrawResponse};
@@ -51,18 +51,56 @@ fn setup<D: Design>(elt: &Element) {
     draw_button.add_event_listener(listener);
 }
 
-fn add<D: Design>(parent: &Element, menu: &Element) {
+/*
+fn add<D: Design>(parent: &Element) {
     let div = document().create_element("div").unwrap();
+    div.set_attribute("class","tab").unwrap();
+    let radio = document().create_element("input").unwrap();
+    radio.set_attribute("type","radio").unwrap();
+    radio.set_attribute("class","input").unwrap();
+    radio.set_attribute("checked","true").unwrap();
+    let id = str::replace(D::name()," ","-");
+    radio.set_attribute("id",&id).unwrap();
+    radio.set_attribute("name","designs").unwrap();
+    let lbl = document().create_element("label").unwrap();
+    lbl.set_attribute("for",&id).unwrap();
+    lbl.set_attribute("class","label");
+    let lbl_txt = document().create_text_node(D::name());
+    lbl.append_child(&lbl_txt);
     parent.append_child(&div);
+    div.append_child(&radio);
+    div.append_child(&lbl);
+    let content = document().create_element("div").unwrap();
+    content.set_attribute("class","panel");
+    div.append_child(&content);
+    setup::<D>(&content);
+}
+*/
+
+fn add<D: Design>(parent: &Element, menu: &Element)
+{
+    let id = str::replace(D::name()," ","-");
+    let div = document().create_element("div").unwrap();
+    div.set_attribute("id",&id).unwrap();
     setup::<D>(&div);
+    parent.append_child(&div);
+    let li = document().create_element("li").unwrap();
+    let a = document().create_element("a").unwrap();
+    a.set_attribute("href",&format!("#{}",&id)).unwrap();
+    let txt = document().create_text_node(D::name());
+    a.append_child(&txt);
+    li.append_child(&a);
+    menu.append_child(&li);
 }
 
 fn do_setup() {
     let form = document().get_element_by_id("form").unwrap();
-    let par = document().create_element("p").unwrap();
-    add::<Lines>(&form, &par);
-    add::<Squiggles>(&form, &par);
-    add::<Quasitrap>(&form, &par);
+    let menu = document().create_element("ul").unwrap();
+    form.append_child(&menu);
+    add::<Lines>(&form, &menu);
+    add::<Squiggles>(&form, &menu);
+    add::<Quasitrap>(&form, &menu);
+    js! { $("#form").tabs(); }
 }
 
 fn main() {
