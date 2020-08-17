@@ -154,7 +154,7 @@ impl symart_base::Design for Squiggles {
                 },
                 "sharpness": {
                     "type": "number",
-                    "title": "Alpha",
+                    "title": "Sharpness",
                     "default": 2
                 }
             },
