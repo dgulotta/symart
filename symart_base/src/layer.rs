@@ -18,7 +18,7 @@ pub fn merge_one(img: &mut RgbImage, layer: &Array2<u8>, color: Rgb<u8>) {
     }
 }
 
-pub fn merge_random_color<'a>(img: &'a mut RgbImage) -> impl FnMut(&'a Array2<u8>) -> ()
+pub fn merge_random_color<'a>(img: &'a mut RgbImage) -> impl FnMut(&'a Array2<u8>)
 {
     move | layer | {
         merge_one(img, layer, Rgb(sample(random::Color)));

@@ -13,7 +13,7 @@ pub struct Symmetry;
 impl Distribution<SymmetryGroup> for Symmetry {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> SymmetryGroup {
         let idx = Uniform::new(0, SymmetryGroup::count()).sample(rng);
-        SymmetryGroup::iter().skip(idx).next().unwrap()
+        SymmetryGroup::iter().nth(idx).unwrap()
     }
 }
 

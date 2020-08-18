@@ -12,7 +12,7 @@ pub struct Modulus {
 
 impl Modulus {
     pub fn new(modulus: i32) -> Self {
-        Modulus { modulus: modulus }
+        Modulus { modulus }
     }
 
     pub fn apply(&self, n: i32) -> i32 {
