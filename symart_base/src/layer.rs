@@ -24,18 +24,3 @@ pub fn merge_random_color<'a>(img: &'a mut RgbImage) -> impl FnMut(&'a Array2<u8
         merge_one(img, layer, Rgb(sample(random::Color)));
     }
 }
-
-/*
-use color::Color;
-
-use ndarray::Array2;
-
-
-
-pub fn merge<I, C>(layers: I) -> Array2<Color> where
-    I: IntoIterator<Item=C>,
-    C: AsRef<Array2<u8>>
-{
-    unimplemented!()
-}
-*/

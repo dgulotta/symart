@@ -13,7 +13,7 @@ threads = ["symart_base/threads"]
 alga = "0.9"
 image = { version = "0.23", default-features = false, features = ["png"] }
 nalgebra = "0.21"
-ndarray = { version = "0.12", default-features = false }
+ndarray = { version = "0.13", default-features = false }
 num-complex = "0.2"
 num-traits = "0.2"
 ordered-float = "1.0"

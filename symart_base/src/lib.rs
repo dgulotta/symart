@@ -18,7 +18,6 @@ extern crate strum;
 extern crate strum_macros;
 
 pub mod canvas;
-pub mod color;
 pub mod fft;
 pub mod layer;
 pub mod random;
