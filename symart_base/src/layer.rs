@@ -1,7 +1,7 @@
-use image::{Rgb, RgbImage};
-use ndarray::Array2;
 use crate::random;
 use crate::rng::sample;
+use image::{Rgb, RgbImage};
+use ndarray::Array2;
 
 fn merge_color(old: u8, new: u8, alpha: u8) -> u8 {
     let a2 = (!alpha) as u16;
@@ -18,9 +18,8 @@ pub fn merge_one(img: &mut RgbImage, layer: &Array2<u8>, color: Rgb<u8>) {
     }
 }
 
-pub fn merge_random_color<'a>(img: &'a mut RgbImage) -> impl FnMut(&'a Array2<u8>)
-{
-    move | layer | {
+pub fn merge_random_color<'a>(img: &'a mut RgbImage) -> impl FnMut(&'a Array2<u8>) {
+    move |layer| {
         merge_one(img, layer, Rgb(sample(random::Color)));
     }
 }

@@ -1,15 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8">
     <title>SymArt</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
   </head>
   <body>
-    <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
     <script src="symart_wasm.js"></script>
-	<div id="form"></div>
+    <script src="index.js"></script>
+    <main>
+      <div id="form">
+        <ul id="menu"></ul>
+      </div>
+    </main>
   </body>
 </html>

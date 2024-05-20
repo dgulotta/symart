@@ -163,7 +163,10 @@ impl<T: Scalar + Ring + Copy> Transformation<T> {
 
 type Tr<T> = Transformation<T>;
 
-pub fn transformations<T: Scalar + Ring + Copy>(sg: SymmetryGroup, hsz: T) -> Vec<Transformation<T>> {
+pub fn transformations<T: Scalar + Ring + Copy>(
+    sg: SymmetryGroup,
+    hsz: T,
+) -> Vec<Transformation<T>> {
     use self::SymmetryGroup::*;
     match sg {
         CM => vec![Tr::id(), Tr::flip_d1()],

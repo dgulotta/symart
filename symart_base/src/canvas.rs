@@ -1,5 +1,6 @@
 use na::Point2;
 use ndarray::Array2;
+use std::mem::MaybeUninit;
 use std::ops::Index;
 use std::ops::IndexMut;
 
@@ -27,12 +28,15 @@ impl Modulus {
 
 pub struct WrapDimension {
     vert: Modulus,
-    horiz: Modulus
+    horiz: Modulus,
 }
 
 impl WrapDimension {
     pub fn new(vert: i32, horiz: i32) -> Self {
-        WrapDimension { vert: Modulus::new(vert), horiz: Modulus::new(horiz) }
+        WrapDimension {
+            vert: Modulus::new(vert),
+            horiz: Modulus::new(horiz),
+        }
     }
 
     pub fn new_from_shape(sh: &[usize]) -> Self {
@@ -49,7 +53,7 @@ impl WrapDimension {
 
 pub struct WrapCanvas<T> {
     array: Array2<T>,
-    dims: WrapDimension
+    dims: WrapDimension,
 }
 
 fn shape(height: u32, width: u32) -> (usize, usize) {
@@ -57,8 +61,6 @@ fn shape(height: u32, width: u32) -> (usize, usize) {
 }
 
 impl<T> WrapCanvas<T> {
-
-
     pub fn height(&self) -> usize {
         self.array.shape()[0]
     }
@@ -74,8 +76,17 @@ impl<T> WrapCanvas<T> {
 }
 
 impl<T: Copy> WrapCanvas<T> {
-    pub unsafe fn uninitialized(height: u32, width: u32) -> Self {
-        Array2::uninitialized(shape(height, width)).into()
+    pub fn uninit(height: u32, width: u32) -> WrapCanvas<MaybeUninit<T>> {
+        Array2::uninit(shape(height, width)).into()
+    }
+}
+
+impl<T> WrapCanvas<MaybeUninit<T>> {
+    pub unsafe fn assume_init(self) -> WrapCanvas<T> {
+        WrapCanvas {
+            array: self.array.assume_init(),
+            dims: self.dims,
+        }
     }
 }
 
@@ -97,7 +108,7 @@ impl<T> From<Array2<T>> for WrapCanvas<T> {
         let w = arr.shape()[1] as i32;
         Self {
             array: arr,
-            dims: WrapDimension::new(h,w)
+            dims: WrapDimension::new(h, w),
         }
     }
 }
@@ -122,13 +133,13 @@ impl<'a, T> IntoIterator for &'a WrapCanvas<T> {
     type IntoIter = <&'a Array2<T> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.array.into_iter()
+        (&self.array).into_iter()
     }
 }
 
-impl<T> Into<Array2<T>> for WrapCanvas<T> {
-    fn into(self) -> Array2<T> {
-        self.array
+impl<T> From<WrapCanvas<T>> for Array2<T> {
+    fn from(c: WrapCanvas<T>) -> Array2<T> {
+        c.array
     }
 }
 

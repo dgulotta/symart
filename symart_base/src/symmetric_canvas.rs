@@ -35,15 +35,19 @@ impl<T: Copy> SymmetricCanvas<T> {
         F: FnMut() -> T,
     {
         let size = hsz * 2;
-        let wc = unsafe { WrapCanvas::uninitialized(size, size) };
-        let mut sc = Self::from_wrap_canvas(wc, group);
+        let wc = WrapCanvas::uninit(size, size);
+        let mut sc = SymmetricCanvas::from_wrap_canvas(wc, group);
         for x in 0..(size as i32) {
             for y in 0..(size as i32) {
                 let t = f();
-                sc.set(&Coord::new(x, y), t);
+                sc.set(&Coord::new(x, y), std::mem::MaybeUninit::new(t));
             }
         }
-        sc
+        SymmetricCanvas {
+            canvas: unsafe { sc.canvas.assume_init() },
+            transforms: sc.transforms,
+            group: sc.group,
+        }
     }
 }
 
@@ -79,15 +83,15 @@ impl<T> AsRef<Array2<T>> for SymmetricCanvas<T> {
     }
 }
 
-impl<T> Into<WrapCanvas<T>> for SymmetricCanvas<T> {
-    fn into(self) -> WrapCanvas<T> {
-        self.canvas
+impl<T> From<SymmetricCanvas<T>> for WrapCanvas<T> {
+    fn from(val: SymmetricCanvas<T>) -> Self {
+        val.canvas
     }
 }
 
-impl<T> Into<Array2<T>> for SymmetricCanvas<T> {
-    fn into(self) -> Array2<T> {
-        self.canvas.into()
+impl<T> From<SymmetricCanvas<T>> for Array2<T> {
+    fn from(val: SymmetricCanvas<T>) -> Self {
+        val.canvas.into()
     }
 }
 

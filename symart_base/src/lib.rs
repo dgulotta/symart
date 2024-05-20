@@ -9,9 +9,9 @@ extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate rand_distr;
 #[cfg(feature = "threads")]
 extern crate rayon;
-extern crate rand_distr;
 extern crate rustfft;
 extern crate serde_json;
 extern crate strum;
@@ -30,26 +30,21 @@ use image::RgbImage;
 #[cfg(feature = "threads")]
 use rayon::prelude::*;
 
-use crate::symmetry::SymmetryGroup;
 use crate::rng::sample;
+use crate::symmetry::SymmetryGroup;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum RandomSymmetry {
-    Random,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum SymmetryChoice {
+    Random,
+    #[serde(untagged)]
     Symmetry(SymmetryGroup),
-    Random(RandomSymmetry),
 }
 
 impl From<SymmetryChoice> for SymmetryGroup {
     fn from(sc: SymmetryChoice) -> Self {
         match sc {
             SymmetryChoice::Symmetry(s) => s,
-            SymmetryChoice::Random(_) => sample(random::Symmetry)
+            SymmetryChoice::Random => sample(random::Symmetry),
         }
     }
 }
@@ -62,11 +57,13 @@ pub trait Design: serde::de::DeserializeOwned {
 
 pub enum SymmetryType {
     Wrapped(SymmetryGroup),
-    None
+    None,
 }
 
 impl From<SymmetryGroup> for SymmetryType {
-    fn from(g: SymmetryGroup) -> SymmetryType { SymmetryType::Wrapped(g) }
+    fn from(g: SymmetryGroup) -> SymmetryType {
+        SymmetryType::Wrapped(g)
+    }
 }
 
 pub struct DrawResponse {
@@ -96,7 +93,7 @@ where
 
 pub fn make_layers<F, T: Send>(n: usize, f: F) -> impl Iterator<Item = T>
 where
-    F: Fn() -> T + Send + Sync
+    F: Fn() -> T + Send + Sync,
 {
     make_layers_n(n, move |_| f())
 }

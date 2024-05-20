@@ -2,7 +2,7 @@
 name = "symart_designs"
 version = "0.1.0"
 authors = ["Daniel R Gulotta <dgulotta@alum.mit.edu>"]
-edition = "2018"
+edition = "2021"
 license = "GPL-2.0-or-later"
 
 [features]
@@ -11,19 +11,19 @@ threads = ["symart_base/threads"]
 
 [dependencies]
 alga = "0.9"
-image = { version = "0.23", default-features = false, features = ["png"] }
-nalgebra = "0.21"
-ndarray = { version = "0.13", default-features = false }
-num-complex = "0.2"
+image = { version = "0.25.1", default-features = false, features = ["png"] }
+nalgebra = "0.32"
+ndarray = { version = "0.15", default-features = false }
+num-complex = "0.4"
 num-traits = "0.2"
-ordered-float = "1.0"
-rand = "0.7"
-rand_distr = "0.2"
-rustfft = "3"
-serde = "1.0"
+ordered-float = "3.7"
+rand = "0.8.5"
+rand_distr = "0.4"
+rustfft = "6"
+serde = "1.0.202"
 serde_derive = "1.0"
 serde_json = { version = "1.0", features = ["preserve_order"] }
-strum = "0.15"
-strum_macros = "0.15"
+strum = "0.25"
+strum_macros = "0.25"
 symart_base = { path = "../symart_base", default-features = false }
 thiserror = "1.0"

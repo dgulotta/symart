@@ -26,8 +26,8 @@ impl Distribution<Vector2<f64>> for NormalDist {
                 Vector2::new(StandardNormal.sample(rng), StandardNormal.sample(rng))
             }
             GridNorm::Hexagonal => {
-                let s = NormalScaled(0.93060485910209959893).sample(rng);
-                let d = NormalScaled(0.53728496591177095978).sample(rng);
+                let s = NormalScaled(0.930_604_859_102_099_6).sample(rng);
+                let d = NormalScaled(0.537_284_965_911_771).sample(rng);
                 Vector2::new(s + d, s - d)
             }
         }
@@ -124,7 +124,7 @@ pub enum Design {
 }
 
 const SWIRL_EPS: f64 = 0.005;
-const SQRT3: f64 = 0.86602540378443864676;
+const SQRT3: f64 = 0.866_025_403_784_438_6;
 
 struct StarPathNode {
     pub dist: NotNan<f64>,
@@ -286,7 +286,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
             self.draw_smooth_line(center, &pt, stdev / 2., 1.);
             self.draw_cluster(&pt, stdev / 2., max_depth - 1);
         }
-        self.draw_dot_default(&center);
+        self.draw_dot_default(center);
     }
 
     fn draw_flower(&mut self, center: &CoordF, steps: usize) {
@@ -352,7 +352,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
 
     fn draw_tree(&mut self, start: &CoordF, q: f64, depth: usize) {
         let mut pt = *start;
-        let n = Distribution::<u64>::sample(&Poisson::new(20.).unwrap(),self.rng) as usize;
+        let n = Poisson::new(20.).unwrap().sample(self.rng) as usize;
         let v = unit_vector(q);
         for _ in 0..n {
             pt += v;
@@ -433,7 +433,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
     fn draw_granules(&mut self) {
         let mut pt = self.random_point();
         let mu = ((self.size() * self.size()) as f64) / (10. * (self.num_symmetries() as f64));
-        let steps = Poisson::new(mu).unwrap().sample(self.rng);
+        let steps = Poisson::new(mu).unwrap().sample(self.rng) as usize;
         for _ in 0..steps {
             let z = NormalScaled(3.).sample(self.rng);
             pt += self.random_normal() / z;
@@ -445,7 +445,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
         let mut pt = self.random_point();
         let mut q = Uniform::new(0., 2. * PI).sample(self.rng);
         let mut dq = Cauchy::new(0., 0.167).unwrap().sample(self.rng);
-        let steps = Poisson::new(2500.).unwrap().sample(self.rng);
+        let steps = Poisson::new(2500.).unwrap().sample(self.rng) as usize;
         for _ in 0..steps {
             dq *= 0.97;
             dq += Cauchy::new(0., 0.005).unwrap().sample(self.rng);
@@ -497,7 +497,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
         let mut mark = SymmetricCanvas::<bool>::new(self.symmetry_group(), hsz);
         let starsize = (self.size() as f64) / 15.;
         let mut queue = BinaryHeap::new();
-        for _ in 0..(Poisson::new(5.).unwrap().sample(self.rng)) {
+        for _ in 0..(Poisson::new(5.).unwrap().sample(self.rng) as usize) {
             queue.push(StarPathNode {
                 dist: zero(),
                 pos: self.random_point(),

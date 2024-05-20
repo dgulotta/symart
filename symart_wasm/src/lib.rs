@@ -1,39 +1,70 @@
-extern crate image;
-#[macro_use]
-extern crate stdweb;
+use image::{Pixel, RgbImage};
+use serde::ser::Serialize;
+use serde_wasm_bindgen::Serializer;
+use symart_base::Design;
+use symart_designs::lines::Lines;
+use symart_designs::quasitrap::Quasitrap;
+use symart_designs::squiggles::Squiggles;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::Clamped;
+use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, ImageData};
 
-use std::ops::Deref;
-
-use image::{GenericImageView, Pixel};
-use stdweb::unstable::TryInto;
-use stdweb::web::{CanvasRenderingContext2d, ImageData, IEventTarget, TypedArray};
-use stdweb::web::event::ResourceLoadEvent;
-
-pub fn make_image_data<I>(ctx: &CanvasRenderingContext2d, img: &I) -> ImageData
-where
-    I: GenericImageView,
-    I::Pixel: Pixel<Subpixel=u8>
-{
-    let sz = 4 * (img.height() as usize) * (img.width() as usize);
-    let mut buf = Vec::with_capacity(sz);
-    buf.resize(sz, 0);
-    for (x, y, pix) in img.pixels() {
-        let pos = (img.width() as usize) * (y as usize) + (x as usize);
-        let rgba = pix.to_rgba();
-        buf[(4*pos)..(4*(pos+1))].copy_from_slice(&rgba.0[..]);
-    }
-    let data = ctx.create_image_data(img.width() as f64, img.height() as f64).unwrap();
-    let arr: TypedArray<u8> = buf.deref().into();
-    js! { @{&data}.data.set(@{arr}); }
-    data
+#[wasm_bindgen(getter_with_clone)]
+pub struct DesignData {
+    pub name: String,
+    pub schema: JsValue,
+    draw_fn: Box<dyn Fn(HtmlCanvasElement, JsValue) -> Result<(), JsValue>>,
 }
 
-pub fn call_when_loaded<F>(mut f: F) where
-    F: FnMut() -> () + 'static
-{
-    if js! { return document.readyState == "complete" }.try_into().unwrap() {
-        f()
-    } else {
-        stdweb::web::window().add_event_listener(move |_: ResourceLoadEvent| f());
+#[wasm_bindgen]
+impl DesignData {
+    pub fn draw(&self, ctx: HtmlCanvasElement, params: JsValue) -> Result<(), JsValue> {
+        (self.draw_fn)(ctx, params)
     }
+}
+
+fn make_design_data<D: Design + 'static>() -> DesignData {
+    let name = D::name().to_owned();
+    let ser = Serializer::json_compatible();
+    let schema = D::schema().serialize(&ser).unwrap();
+    let draw_fn = Box::new(design_draw::<D>);
+    DesignData {
+        name,
+        schema,
+        draw_fn,
+    }
+}
+
+#[wasm_bindgen]
+pub fn design_data(name: &str) -> Result<DesignData, JsValue> {
+    match name {
+        "Lines" => Ok(make_design_data::<Lines>()),
+        "Quasitrap" => Ok(make_design_data::<Squiggles>()),
+        "Squiggles" => Ok(make_design_data::<Quasitrap>()),
+        _ => Err("Unrecognized design".into()),
+    }
+}
+
+fn draw_image(canvas: HtmlCanvasElement, img: &RgbImage) -> Result<(), JsValue> {
+    let width = img.width() as usize;
+    let height = img.height() as usize;
+    let sz = 4 * height * width;
+    let mut buf = vec![0; sz];
+    for (x, y, pix) in img.enumerate_pixels() {
+        let pos = width * (y as usize) + (x as usize);
+        let rgba = pix.to_rgba();
+        buf[(4 * pos)..(4 * (pos + 1))].copy_from_slice(&rgba.0[..]);
+    }
+    let data =
+        ImageData::new_with_u8_clamped_array_and_sh(Clamped(&buf), img.width(), img.height())?;
+    canvas.set_width(img.width());
+    canvas.set_height(img.height());
+    let ctx: CanvasRenderingContext2d = canvas.get_context("2d")?.unwrap().dyn_into()?;
+    ctx.put_image_data(&data, 0.0, 0.0)
+}
+
+fn design_draw<D: Design>(ctx: HtmlCanvasElement, params: JsValue) -> Result<(), JsValue> {
+    let design: D = serde_wasm_bindgen::from_value(params)?;
+    let response = design.draw().map_err(|e| e.to_string())?;
+    draw_image(ctx, &response.im)
 }

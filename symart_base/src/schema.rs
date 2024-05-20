@@ -7,6 +7,25 @@ pub trait JsonSchema {
     fn schema() -> Value;
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type")]
+#[serde(rename_all = "camelCase")]
+pub enum SchemaField {
+    Integer {
+        title: String,
+        minimum: i64,
+        maximum: i64,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        multiple_of: Option<i64>,
+        default: i64,
+    },
+    String {
+        title: String,
+        r#enum: Vec<String>,
+        default: String,
+    },
+}
+
 pub fn size_even() -> Value {
     json!({
         "type": "integer",

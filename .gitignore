@@ -1,3 +1,5 @@
 /target
 **/*.rs.bk
 Cargo.lock
+symart_wasm.js
+symart_wasm_bg.wasm

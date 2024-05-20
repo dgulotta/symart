@@ -1,10 +1,10 @@
 use na::Vector2;
-use rand::distributions::Distribution;
-use rand_distr::{Exp1, StandardNormal, Uniform};
-use rand::Rng;
-use strum::{EnumCount, IntoEnumIterator};
-use std::f64::consts::FRAC_PI_2;
 use num_complex::Complex64;
+use rand::distributions::Distribution;
+use rand::Rng;
+use rand_distr::{Exp1, StandardNormal, Uniform};
+use std::f64::consts::FRAC_PI_2;
+use strum::IntoEnumIterator;
 
 use crate::symmetry::SymmetryGroup;
 
@@ -12,7 +12,7 @@ pub struct Symmetry;
 
 impl Distribution<SymmetryGroup> for Symmetry {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> SymmetryGroup {
-        let idx = Uniform::new(0, SymmetryGroup::count()).sample(rng);
+        let idx = Uniform::new(0, SymmetryGroup::iter().count()).sample(rng);
         SymmetryGroup::iter().nth(idx).unwrap()
     }
 }
@@ -55,7 +55,7 @@ impl Distribution<[u8; 3]> for Color {
 }
 
 pub struct Levy {
-    pub alpha: f64
+    pub alpha: f64,
 }
 
 impl Distribution<f64> for Levy {
@@ -69,12 +69,12 @@ impl Distribution<f64> for Levy {
 }
 
 pub struct Fraction {
-    pub denom: usize
+    pub denom: usize,
 }
 
 impl Distribution<f64> for Fraction {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> f64 {
-        (Uniform::new(0,self.denom).sample(rng) as f64) / (self.denom as f64)
+        (Uniform::new(0, self.denom).sample(rng) as f64) / (self.denom as f64)
     }
 }
 
@@ -95,10 +95,12 @@ impl Distribution<Complex64> for ComplexStdNormal {
     }
 }
 
-pub struct Slice<'a, T: Copy> { pub slice: &'a [T] }
+pub struct Slice<'a, T: Copy> {
+    pub slice: &'a [T],
+}
 
 impl<'a, T: Copy> Distribution<T> for Slice<'a, T> {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
-        self.slice[Uniform::new(0,self.slice.len()).sample(rng)]
+        self.slice[Uniform::new(0, self.slice.len()).sample(rng)]
     }
 }

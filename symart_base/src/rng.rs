@@ -15,7 +15,7 @@ pub fn sample_fn<F, T>(f: F) -> T
 where
     F: FnOnce(&mut SmallRng) -> T,
 {
-    RNG.with(|r| f(&mut *r.borrow_mut()))
+    RNG.with(|r| f(&mut r.borrow_mut()))
 }
 
 pub fn sample<D, T>(dist: D) -> T

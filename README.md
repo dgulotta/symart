@@ -11,7 +11,10 @@ There is an online demo [here](https://dgulotta.github.io/symart_demo/).
 It can also be run locally:
 ```sh
 cd symart_wasm
-cargo web start --release
+cargo build --release --target wasm32-unknown-unknown
+wasm-bindgen ../target/wasm32-unknown-unknown/release/symart_wasm.wasm --out-dir pkg --target no-modules --no-typescript
+cd pkg
+python3 -m http.server
 ```
 
 See also
