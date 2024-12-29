@@ -1,7 +1,6 @@
-use alga::general::AdditiveGroup;
-use na::{Point2, Scalar, Vector2};
-use num_traits::identities::zero;
 use image::RgbImage;
+use na::{ClosedAdd, Point2, Scalar, Vector2};
+use num_traits::identities::zero;
 use ordered_float::NotNan;
 use rand::distributions::uniform::{SampleUniform, Uniform};
 use rand::Rng;
@@ -12,10 +11,10 @@ use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 use strum_macros::{Display, EnumCount, EnumIter, EnumString, IntoStaticStr};
 
 use symart_base::canvas::Coord;
+use symart_base::random::NormalScaled;
 use symart_base::symmetric_canvas::SymmetricCanvas;
 use symart_base::symmetry::{GridNorm, SymmetryGroup};
-use symart_base::random::NormalScaled;
-use symart_base::{DrawResponse, SymmetryChoice, schema};
+use symart_base::{schema, DrawResponse, SymmetryChoice};
 
 struct NormalDist(pub GridNorm);
 
@@ -56,7 +55,7 @@ struct EndpointDist {
 
 impl<T> Distribution<(Point2<T>, Point2<T>)> for EndpointDist
 where
-    T: SampleUniform + Scalar + From<i32> + AdditiveGroup + Copy,
+    T: SampleUniform + Scalar + From<i32> + ClosedAdd + Copy,
 {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> (Point2<T>, Point2<T>) {
         let pt = PointDist { size: self.size }.sample(rng);
@@ -260,7 +259,7 @@ impl<'a, 'b, R: Rng + ?Sized + 'b> LayerGenerator<'a, 'b, R> {
 
     fn random_endpoints<T>(&mut self, wrap: i32) -> (Point2<T>, Point2<T>)
     where
-        T: SampleUniform + Scalar + From<i32> + AdditiveGroup + Copy,
+        T: SampleUniform + Scalar + From<i32> + ClosedAdd + Copy,
     {
         EndpointDist {
             size: self.size() as i32,
@@ -552,7 +551,9 @@ pub fn lines_designs() -> serde_json::Value {
 }
 
 impl symart_base::Design for Lines {
-    fn name() -> &'static str { "Lines" }
+    fn name() -> &'static str {
+        "Lines"
+    }
 
     fn schema() -> serde_json::Value {
         serde_json::json!({
@@ -588,6 +589,9 @@ impl symart_base::Design for Lines {
             let col = symart_base::rng::sample(symart_base::random::Color);
             symart_base::layer::merge_one(&mut im, layer.as_ref(), image::Rgb(col));
         });
-        Ok(DrawResponse { im, sym: sym.into() })
+        Ok(DrawResponse {
+            im,
+            sym: sym.into(),
+        })
     }
 }

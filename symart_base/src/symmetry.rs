@@ -1,7 +1,12 @@
-use alga::general::Ring;
+use std::ops::Neg;
+
 use na::{Matrix2, Point2, Scalar, Vector2};
-use num_traits::{one, zero};
+use num_traits::{one, zero, NumAssignOps, NumOps, One, Zero};
 use strum_macros::{Display, EnumCount, EnumIter, EnumString, IntoStaticStr};
+
+pub trait Ring: One + Zero + NumOps + NumAssignOps + Neg<Output = Self> {}
+
+impl<T: One + Zero + NumOps + NumAssignOps + Neg<Output = T>> Ring for T {}
 
 #[derive(
     Clone,

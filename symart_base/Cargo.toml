@@ -10,7 +10,6 @@ default = ["threads"]
 threads = ["rayon"]
 
 [dependencies]
-alga = "0.9"
 nalgebra = "0.32"
 ndarray = { version = "0.15", default-features = false }
 num-traits = "0.2"

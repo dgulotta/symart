@@ -1,4 +1,3 @@
-extern crate alga;
 extern crate image;
 extern crate nalgebra as na;
 extern crate num_traits;
@@ -15,5 +14,5 @@ extern crate thiserror;
 extern crate symart_base;
 
 pub mod lines;
-pub mod squiggles;
 pub mod quasitrap;
+pub mod squiggles;
